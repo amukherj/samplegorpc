@@ -1,0 +1,57 @@
+syntax = "proto2";
+
+package ssl_terminator;
+
+message SSLTerminatorConfigurationProto {
+  message Service {
+    // Port to proxy that HTTP request to.
+    optional int32 port = 1;
+
+    message Handler {
+      // URL to forward.
+      optional string handler_url = 1;
+
+      // Destination URL to forward the HTTP request.
+      optional string proxy_url = 2;
+
+      // Indicates if the handler is for a websocket.
+      optional bool is_websocket = 3 [ default = false ];
+
+      // Apache proxy timeout in seconds for data sent to the backend.
+      // TODO: May not apply for other backends.
+      optional int64 conn_timeout_secs = 4 [ default = 300 ];
+
+      // Apache proxy retry timeout in seconds. Apache will not forward any
+      // requests until this timeout expires.
+      // TODO: May not apply for backends.
+      optional int64 retry_timeout_secs = 5 [ default = 0 ];
+
+      // Indicates whether to use regular expression matching or non-regular
+      // expression matching.
+      optional bool is_regex = 6;
+    }
+    repeated Handler handler_list = 2;
+
+    message Redirect {
+      // URL to redirect.
+      optional string handler_url = 1;
+
+      // The destination URL.
+      optional string redirect_url = 2;
+    }
+    repeated Redirect redirect_list = 3;
+
+		optional string name = 4;
+
+		message Host {
+			optional string address = 1;
+			optional uint32 port_value = 2;
+		}
+
+		repeated Host hosts = 5;
+   }
+  repeated Service service_list = 1;
+
+  // Logical timestamp.
+  optional int64 logical_timestamp = 2 [ default = 0 ];
+}
